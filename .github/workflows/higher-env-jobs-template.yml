@@ -1,0 +1,47 @@
+name: multijobs-sequential
+
+#what could be the trigger
+# Controls when the workflow will run
+on: workflow_call
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  retrive_build:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Get code
+        uses: actions/checkout@v3
+      - run: mkdir -p path/to/artifact
+      - run: echo source > path/to/artifact/source.txt
+
+      - name: Form the source and destination json
+        run: echo retrieve job is forming the source and destination json
+
+      - name: artifact source abd destination actions
+        uses: actions/upload-artifact@v3
+        with:
+          name: source.txt
+          path: path
+          
+
+  upload_dependencies:
+     runs-on: ubuntu-latest
+     needs: retrive_build
+     steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: source.txt
+      - name: Upload dependencies
+        run: echo uploading the dependencies
+      
+  deploy_job:
+    runs-on: ubuntu-latest
+    needs: upload_dependencies
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: deploy 
+        run: echo run deployment
